@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+app_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+CHESS_STOCKFISH="$app_dir/engine/stockfish" exec qs -p "$app_dir/chess.qml"

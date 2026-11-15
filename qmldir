@@ -1,0 +1,2 @@
+singleton Game Game.qml
+singleton Engine Engine.qml
