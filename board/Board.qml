@@ -314,10 +314,9 @@ Item {
     function pieceFen(square) {
         if (typeof square !== "string" || !/^[a-h][1-8]$/.test(square))
             return ".";
+        // the piece standing on the square, in the matrix's own order: the flip reads squares, not pieces
         const i = Fen.indexAt(square);
-        const r = flipped ? 7 - Math.floor(i / 8) : Math.floor(i / 8);
-        const c = flipped ? 7 - (i % 8) : i % 8;
-        return rows[r][c];
+        return rows[Math.floor(i / 8)][i % 8];
     }
 
     // dragging: the piece leaves its square and follows the pointer in the drag layer

@@ -43,7 +43,7 @@ FloatingWindow {
             target: eventNotice
             function onActivated() {
                 Engine.cancelSearch();
-                Game.undoToWhite();
+                Game.undoToTurn("w");
                 Engine.newGame();
             }
         }

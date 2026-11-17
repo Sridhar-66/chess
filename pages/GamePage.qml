@@ -36,6 +36,15 @@ Item {
     // the promotion waiting to be answered: {from, to}, empty when there is none
     property var promotion: null
 
+    // the side the person plays; the engine takes the other one. The board reads from the person's side.
+    property string humanSide: "w"
+    function playOtherSide() {
+        Engine.cancelSearch();
+        page.humanSide = page.humanSide === "w" ? "b" : "w";
+        if (!Game.over && Game.turn !== page.humanSide && Engine.ready)
+            Engine.requestMove(Game.fen);
+    }
+
     // what each side has taken, in the order the pieces are worth: White's captures are Black's pieces
     readonly property var captures: {
         const history = Game.history;
@@ -92,11 +101,15 @@ Item {
         Engine.cancelSearch();
         Game.newGame();
         Engine.newGame();
+        if (Game.turn !== page.humanSide && Engine.ready)
+            Engine.requestMove(Game.fen);
     }
     function undoMove() {
         Engine.cancelSearch();
-        Game.undoToWhite();
+        Game.undoToTurn(page.humanSide);
         Engine.newGame();
+        if (!Game.over && Game.turn !== page.humanSide && Engine.ready)
+            Engine.requestMove(Game.fen);
     }
     // Escape takes the promotion back, from wherever the keyboard is
     Keys.onEscapePressed: page.promotion = null
@@ -105,7 +118,7 @@ Item {
     Connections {
         target: Engine
         function onReadyChanged() {
-            if (Engine.ready && Game.turn === "b" && !Game.over)
+            if (Engine.ready && Game.turn !== page.humanSide && !Game.over)
                 Engine.requestMove(Game.fen);
         }
         function onMoveReady(from, to, promotion) {
@@ -176,7 +189,8 @@ Item {
                 lastFrom: Game.lastFrom
                 lastTo: Game.lastTo
                 check: Game.check
-                picksUp: Engine.available ? "w" : "wb"
+                picksUp: Engine.available ? page.humanSide : "wb"
+                flipped: page.humanSide === "b"
                 onMoveChosen: (from, to) => page.chooseMove(from, to)
             }
 
@@ -279,7 +293,8 @@ Item {
                     : Game.check ? ((Game.turn === "w" ? "Black" : "White") + " checked "
                         + (Game.turn === "w" ? "White" : "Black"))
                     : Engine.thinking ? "Computer is thinking"
-                    : Engine.available ? (Game.turn === "w" ? "Your move" : "Computer to move")
+                    : Engine.available
+                        ? (Game.turn === page.humanSide ? "Your move" : "Computer to move")
                     : Engine.status
                 size: "headline"
                 cut: "display"
@@ -300,7 +315,7 @@ Item {
                     visible: page.captures.byWhite.length > 0
 
                     TacitText {
-                        text: "You captured"
+                        text: page.humanSide === "w" ? "You captured" : "Computer captured"
                         size: "fileText"
                         ink: "sec"
                         weight: "medium"
@@ -328,7 +343,7 @@ Item {
                     visible: page.captures.byBlack.length > 0
 
                     TacitText {
-                        text: "Computer captured"
+                        text: page.humanSide === "b" ? "You captured" : "Computer captured"
                         size: "fileText"
                         ink: "sec"
                         weight: "medium"
@@ -411,8 +426,8 @@ Item {
                         onActivated: page.undoMove()
                     }
                     Slab {
-                        text: "Flip"
-                        onActivated: board.flipped = !board.flipped
+                        text: page.humanSide === "w" ? "Play black" : "Play white"
+                        onActivated: page.playOtherSide()
                     }
                 }
             }

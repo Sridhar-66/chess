@@ -117,10 +117,12 @@ Singleton {
         return true;
     }
 
-    function undoToWhite() {
+    // take back until it is `side`'s turn again: at least one move goes, and the game is on afterwards,
+    // even if it had ended
+    function undoToTurn(side) {
         if (!game.undo())
             return false;
-        if (game.turn === "b")
+        while (game.history.length > 0 && game.turn !== side)
             game.undo();
         return true;
     }
