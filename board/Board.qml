@@ -342,13 +342,17 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton
+
+        // the square the pointer is over, when the pointer is on the board. The cursor shape reads it,
+        // so the piece lookups run when the pointer crosses into another square, not on every pixel.
+        readonly property string square: board.squareAt(mouseX, mouseY)
+
         cursorShape: {
-            const at = board.squareAt(pointer.mouseX, pointer.mouseY);
             if (board.dragging)
                 return Qt.ClosedHandCursor;
-            if (board.selected !== "" && board.isTarget(at))
+            if (board.selected !== "" && board.isTarget(square))
                 return Qt.PointingHandCursor;
-            if (canPickUp(at))
+            if (canPickUp(square))
                 return Qt.PointingHandCursor;
             return Qt.ArrowCursor;
         }
@@ -400,7 +404,6 @@ Item {
     // state the pointer handler works with
     property point dragStartPoint: Qt.point(0, 0)
     property string pressSquare: ""
-
     // the playing surface, corners rounded: everything drawn on the squares keeps the shape, so the page's
     // ground shows at the corners
     Item {
@@ -411,19 +414,6 @@ Item {
         layer.effect: MultiEffect {
             maskEnabled: true
             maskSource: boardMask
-        }
-
-        // the dragged piece follows the pointer, a little under it so it reads as held
-        Image {
-            visible: board.dragging
-            source: board.pieceSource(board.pieceFen(board.dragFrom))
-            sourceSize: Qt.size(board.cell, board.cell)
-            fillMode: Image.PreserveAspectFit
-            x: board.dragPoint.x - width / 2
-            y: board.dragPoint.y - height * 0.85
-            width: board.cell
-            height: board.cell
-            z: 10
         }
 
         Grid {
@@ -563,6 +553,20 @@ Item {
                 }
             }
         }
+    }
+
+    // the dragged piece follows the pointer, a little under it so it reads as held. It sits outside the
+    // masked layer, so dragging does not re-render the squares.
+    Image {
+        visible: board.dragging
+        source: board.pieceSource(board.pieceFen(board.dragFrom))
+        sourceSize: Qt.size(board.cell, board.cell)
+        fillMode: Image.PreserveAspectFit
+        x: board.dragPoint.x - width / 2
+        y: board.dragPoint.y - height * 0.85
+        width: board.cell
+        height: board.cell
+        z: 10
     }
 
     // the shape the playing surface keeps; drawn nowhere, its layer is the mask

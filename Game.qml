@@ -39,10 +39,6 @@ Singleton {
         game.revision;
         return rules.history({ verbose: true });
     }
-    readonly property var eventHistory: {
-        game.revision;
-        return game.eventLog();
-    }
 
     // how a game ended while it was still playable: "checkmate" | "stalemate" | "repetition" |
     // "fifty" | "material". Empty while it goes on.
