@@ -19,6 +19,13 @@ installs the app under `~/.local/share/tacit/apps/chess`, and registers a `Chess
 `~/.local/share/applications`. It does not replace or reconfigure Tacit's shell. Quickshell and Tacit.Kit must
 already be installed.
 
+While developing, run it with `--link`. The installed launcher then reads the QML, board, and page files straight
+from this checkout, so edits show the next time the app starts; reopen the app after changing a file:
+
+```sh
+./tools/install-tacit.sh --link
+```
+
 To run directly from the checkout after installing Stockfish:
 
 ```sh

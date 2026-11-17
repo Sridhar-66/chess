@@ -14,6 +14,10 @@ FloatingWindow {
     implicitWidth: 1280
     implicitHeight: 820
     color: "transparent"
+    visible: true
+
+    Binding { target: Quickshell; property: "watchFiles"; value: false }
+    onVisibleChanged: if (!visible) Qt.quit()
 
     Component.onCompleted: Kit.watchKeys(window)
 
@@ -25,8 +29,12 @@ FloatingWindow {
         WindowGround {}
 
         Loader {
+            id: pageLoader
             anchors.fill: parent
             source: "pages/GamePage.qml"
+            // the page asks the window how wide the screen is, to know whether the window is on one
+            // side of it or fills it
+            onLoaded: pageLoader.item.appWindow = window
         }
 
         Notice {
